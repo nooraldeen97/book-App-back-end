@@ -3,6 +3,7 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const modals = require('./modals');
 require('dotenv').config();
 
 const server = express();
@@ -21,25 +22,9 @@ mongoose.connect('mongodb://localhost:27017/books', {useNewUrlParser: true, useU
 
 
 
-const BooksSchema = new mongoose.Schema({
-    name:String,
-    description:String,
-    status:String,
-    imgURL:String
-  });
-
-
-const userSchema = new mongoose.Schema({
-    email: String,
-    books:[BooksSchema]
-  });
-
-
-  const ownerFavoriteBooks = mongoose.model('book', userSchema);
-
 
 function storeDatacollectios(){
-    const myfav = new ownerFavoriteBooks ({
+    const myfav = new modals.ownerFavoriteBooks ({
         email :'noor.khalaf307@gmail.com',
         books:[{
             name:'The One Thing',
@@ -62,7 +47,6 @@ function storeDatacollectios(){
     myfav.save();
 }
 
-
 // storeDatacollectios();
 
 //localhost:3001/book?emailQuery=noor.khalaf307@gmail.com
@@ -71,7 +55,7 @@ server.get('/books',getBooksHandler)
 
 function getBooksHandler(req,res){
 let enteredEmail = req.query.emailQuery;
-ownerFavoriteBooks.find({email:enteredEmail},function(err,ownerData){
+modals.ownerFavoriteBooks.find({email:enteredEmail},function(err,ownerData){
 if(err){
     console.log('somthing went wrong');
 }
