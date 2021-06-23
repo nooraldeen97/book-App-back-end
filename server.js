@@ -5,9 +5,9 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const modals = require('./modals');
 require('dotenv').config();
-
 const server = express();
 server.use(cors());
+server.use(express.json()); // to deal with req.body 
 
 const PORT = process.env.PORT;
 
@@ -49,8 +49,10 @@ function storeDatacollectios(){
 
 // storeDatacollectios();
 
-//localhost:3001/book?emailQuery=noor.khalaf307@gmail.com
+//localhost:3001/books?emailQuery=noor.khalaf307@gmail.com
 server.get('/books',getBooksHandler)
+server.post('/books',addBooksHandler)
+server.delete('/books/:id',deleteBooksHandler)
 
 
 function getBooksHandler(req,res){
@@ -68,6 +70,50 @@ else
 })
 };
 
+
+function addBooksHandler (req,res){
+    const {email,bookName,description,status}=req.body;
+    modals.ownerFavoriteBooks.find({email:email},(err,ownerData)=>{
+        if(err){
+            console.log('something went wrong!!')
+            // console.log(ownerData[0])
+        }else
+        {
+            ownerData[0].books.push({
+                name:bookName,
+                description:description,
+                status:status
+
+            })
+            ownerData[0].save();
+            res.send(ownerData[0].books);
+        }
+
+    })
+}
+
+function deleteBooksHandler (req,res){
+   const id = req.params.id;
+   const email=req.query.email;
+    modals.ownerFavoriteBooks.find({email:email},(err,ownerData)=>{
+        if(err){
+            console.log('something went wrong!!')
+            // console.log(ownerData[0])
+        }else
+        {
+        const  newBooks = ownerData[0].books.filter((book)=>{
+            if(book._id !== id){
+                return book;
+            }
+        })
+        ownerData[0].books = newBooks;
+        ownerData[0].save();
+        res.send(ownerData[0].books);
+
+        }
+
+    })
+}
 
 
 
