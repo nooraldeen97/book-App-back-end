@@ -95,6 +95,7 @@ function addBooksHandler (req,res){
 function deleteBooksHandler (req,res){
    const id = req.params.id;
    const email=req.query.email;
+   console.log(typeof id)
     modals.ownerFavoriteBooks.find({email:email},(err,ownerData)=>{
         if(err){
             console.log('something went wrong!!')
@@ -102,7 +103,8 @@ function deleteBooksHandler (req,res){
         }else
         {
         const  newBooks = ownerData[0].books.filter((book)=>{
-            if(book._id !== id){
+            console.log(typeof book._id)
+            if(book._id != id){
                 return book;
             }
         })
