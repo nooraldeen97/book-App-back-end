@@ -18,9 +18,10 @@ server.get('/test',(req,res)=>{
 })
 
 // my data base name is books , here we connect mongoose with books data base 
-mongoose.connect('mongodb://localhost:27017/books', {useNewUrlParser: true, useUnifiedTopology: true});
+// mongoose.connect('mongodb://localhost:27017/books', {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(process.env.MONGO_URL, {useNewUrlParser: true, useUnifiedTopology: true});
 
-
+   
 
 
 function storeDatacollectios(){
@@ -53,7 +54,7 @@ function storeDatacollectios(){
 server.get('/books',getBooksHandler)
 server.post('/books',addBooksHandler)
 server.delete('/books/:id',deleteBooksHandler)
-
+server.put('/books/:id',putBooksHandler)
 
 function getBooksHandler(req,res){
 let enteredEmail = req.query.emailQuery;
@@ -63,7 +64,7 @@ if(err){
 }
 else
 {
-    console.log(ownerData[0].books);
+    // console.log(ownerData[0].books);
     res.send(ownerData[0].books);
 }
 
@@ -102,16 +103,35 @@ function deleteBooksHandler (req,res){
         }else
         {
         const  newBooks = ownerData[0].books.filter((book)=>{
-            if(book._id !== id){
+            if(book._id != id){
                 return book;
             }
         })
         ownerData[0].books = newBooks;
         ownerData[0].save();
+        // console.log(ownerData);
+        // console.log(ownerData.books);
         res.send(ownerData[0].books);
 
         }
 
+    })
+}
+
+
+function putBooksHandler (req,res){
+    const {bookName,description,status,index,email}=req.body;
+    const id =req.params.id;
+    modals.ownerFavoriteBooks.findOne({email:email},(err,ownerData)=>{
+        ownerData.books.splice(index,1, {
+            name : bookName,
+            description:description,
+            status: status
+        })
+        
+        ownerData.save();
+        console.log(ownerData.books)
+        res.send(ownerData.books)
     })
 }
 
